@@ -31,7 +31,7 @@ export default function EventPage() {
   }, [userId]);
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-background py-32">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-3">
@@ -45,7 +45,7 @@ export default function EventPage() {
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 min-h-[4vh] p-2">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <SquarePen className="h-4 w-4" />
               Add Event

@@ -2,18 +2,18 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-[80vh] bg-gradient-to-br from-background via-primary/5 to-accent/5 overflow-x-hidden py-32">
+    <div className="min-h-screen bg-linear-to-br from-background via-primary/5 to-accent/5 overflow-x-hidden flex items-center justify-center">
       {/* Hero Section */}
       <div className="text-center space-y-8 px-4">
         <div className="space-y-6 max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
+          <div className="inline-flex items-center gap-2 bg-primary/10 dark:text-white text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
             Streamlining Committee Management
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight">
-            <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
               Join Flow
             </span>
           </h1>
@@ -31,7 +31,7 @@ export default function HomePage() {
             href="/register"
             className="group relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-primary/50 dark:hover:border-primary/30"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-4">
               <div className="bg-primary text-primary-foreground rounded-2xl w-16 h-16 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <span className="text-2xl">📝</span>
@@ -58,7 +58,7 @@ export default function HomePage() {
             href="/status"
             className="group relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-accent/50 dark:hover:border-accent/30"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-4">
               <div className="bg-accent text-accent-foreground rounded-2xl w-16 h-16 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <span className="text-2xl">🔍</span>
@@ -85,7 +85,7 @@ export default function HomePage() {
             href="/admin"
             className="group relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-destructive/50 dark:hover:border-destructive/30"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br from-destructive/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-4">
               <div className="bg-destructive text-destructive-foreground rounded-2xl w-16 h-16 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <span className="text-2xl">⚙️</span>

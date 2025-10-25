@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("jf_events")
       .select("id")
-      .eq("ajk_token", token)
+      .eq("token", token)
       .maybeSingle();
 
     if (error) throw error;

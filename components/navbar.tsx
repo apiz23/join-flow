@@ -30,8 +30,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/register", label: "Register Committee", icon: Users },
-    { href: "/status", label: "Check Status", icon: Search },
+    { href: "/register", label: "Register Events", icon: Users },
     { href: "/admin", label: "Admin", icon: Settings },
   ];
 
@@ -46,7 +45,7 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        "bg-background/95 backdrop-blur-md border-b transition-all duration-300 sticky top-0 z-50",
+        "fixed top-0 left-0 w-full bg-background/95 backdrop-blur-md border-b transition-all duration-300 z-50",
         isScrolled
           ? "shadow-lg border-border/80 bg-background/90"
           : "shadow-sm border-border/40",
@@ -61,7 +60,7 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
           >
             <div className="relative">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg">
+              <div className="flex items-center justify-center w-10 h-10 bg-linear-to-br from-primary to-primary/80 rounded-xl shadow-lg">
                 <span className="text-primary-foreground font-bold text-sm">
                   JF
                 </span>
@@ -71,9 +70,6 @@ export default function Navbar() {
             <div className="flex flex-col">
               <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
                 JoinFlow
-              </span>
-              <span className="text-xs text-muted-foreground -mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Committee Portal
               </span>
             </div>
           </Link>
@@ -89,7 +85,7 @@ export default function Navbar() {
                   className={cn(
                     "group relative flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300",
                     isActive(link.href)
-                      ? "text-primary bg-primary/10 shadow-inner"
+                      ? "text-primary bg-primary/10 dark:text-white shadow-inner"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
                   )}
                 >
@@ -102,7 +98,7 @@ export default function Navbar() {
                   )}
 
                   {/* Hover effect */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-xl bg-linear-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
               );
             })}
@@ -129,7 +125,7 @@ export default function Navbar() {
           {/* Header */}
           <DrawerHeader className="flex flex-row items-center justify-between px-6 py-5 border-b border-border/50 bg-sidebar">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg">
+              <div className="flex items-center justify-center w-10 h-10 bg-linear-to-br from-primary to-primary/80 rounded-xl shadow-lg">
                 <span className="text-primary-foreground font-bold text-sm">
                   JF
                 </span>

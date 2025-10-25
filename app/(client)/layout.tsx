@@ -26,7 +26,8 @@ export default function RootLayout({
       <body className={`${poppins.className} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
+          enableSystem
           disableTransitionOnChange
         >
           <Toaster richColors />

@@ -54,7 +54,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: eventError.message }, { status: 500 });
   }
 
-  // 2️⃣ Insert AJK roles (if any)
   if (ajk_list && Array.isArray(ajk_list) && ajk_list.length > 0) {
     const ajkData = ajk_list.map((ajk: any) => ({
       id: uuidv4(),

@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: Request) {
   try {
-    const { name, matric_no, phone, committee } = await req.json();
+    const { name, matric_no, email, phone, committee } = await req.json();
 
-    if (!name || !matric_no || !phone || !committee) {
+    if (!name || !matric_no || !email || !phone || !committee) {
       return NextResponse.json(
         { error: "Sila lengkapkan semua ruangan." },
         { status: 400 },
@@ -21,11 +21,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get event from token
     const { data: event, error: eventError } = await supabase
       .from("jf_events")
-      .select("id")
-      .eq("ajk_token", token)
+      .select("id, group_link, name")
+      .eq("token", token)
       .single();
 
     if (eventError || !event) {
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check AJK belongs to event
+    // ✅ Validate AJK list
     const { data: ajk, error: ajkError } = await supabase
       .from("jf_ajk_list")
       .select("id, max_members")
@@ -60,8 +59,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: countError.message }, { status: 500 });
     }
 
-    const currentCount = count ?? 0; // ✅ default to 0 if null
-
+    const currentCount = count ?? 0;
     if (currentCount >= ajk.max_members) {
       return NextResponse.json(
         { error: "Jawatankuasa ini telah penuh." },
@@ -93,6 +91,7 @@ export async function POST(req: Request) {
         id: uuidv4(),
         name,
         matric_no,
+        email,
         phone,
         jf_ajk_id: ajk.id,
         jf_event_id: event.id,
@@ -104,6 +103,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       message: "Pendaftaran berjaya! Terima kasih atas penyertaan anda.",
+      group_link: event.group_link || null,
     });
   } catch (err) {
     console.error(err);

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import clsx from "clsx";
+import { Copy, CheckCheck } from "lucide-react";
 
 type TSnippetType = "success" | "warning" | "error";
 
@@ -16,29 +17,42 @@ interface SnippetProps {
 
 const variant = {
   default: {
-    background: "bg-background-100",
-    text: "text-gray-1000",
-    fill: "fill-gray-1000",
+    background: "bg-muted/50",
+    border: "border-border",
+    text: "text-foreground",
+    button: "text-muted-foreground hover:text-foreground hover:bg-accent",
+    success: "text-green-600",
   },
   inverted: {
     background: "bg-gray-1000",
+    border: "border-gray-600",
     text: "text-gray-100",
-    fill: "fill-gray-100",
+    button: "text-gray-400 hover:text-white hover:bg-gray-700",
+    success: "text-green-400",
   },
   success: {
-    background: "bg-blue-100",
-    text: "text-blue-900",
-    fill: "fill-blue-900",
+    background: "bg-green-50 dark:bg-green-950/20",
+    border: "border-green-200 dark:border-green-800",
+    text: "text-green-900 dark:text-green-100",
+    button:
+      "text-green-600 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30",
+    success: "text-green-600 dark:text-green-400",
   },
   warning: {
-    background: "bg-amber-100",
-    text: "text-amber-900",
-    fill: "fill-amber-900",
+    background: "bg-amber-50 dark:bg-amber-950/20",
+    border: "border-amber-200 dark:border-amber-800",
+    text: "text-amber-900 dark:text-amber-100",
+    button:
+      "text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-900/30",
+    success: "text-amber-600 dark:text-amber-400",
   },
   error: {
-    background: "bg-red-100",
-    text: "text-red-900",
-    fill: "fill-red-900",
+    background: "bg-red-50 dark:bg-red-950/20",
+    border: "border-red-200 dark:border-red-800",
+    text: "text-red-900 dark:text-red-100",
+    button:
+      "text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30",
+    success: "text-red-600 dark:text-red-400",
   },
 };
 
@@ -74,18 +88,20 @@ export const Snippet = ({
   return (
     <div
       className={clsx(
-        "flex px-3 py-2.5 rounded-md border border-gray-alpha-400",
+        "group flex items-center justify-between px-4 py-3 rounded-lg border transition-all duration-200",
         colors.background,
+        colors.border,
+        "hover:shadow-sm",
       )}
       style={{ width }}
     >
-      <div className="mr-3">
-        {lines.map((line) => (
+      <div className="flex-1 min-w-0">
+        {lines.map((line, index) => (
           <div
-            key={line}
+            key={index}
             className={clsx(
-              "font-mono text-[13px] truncate",
-              prompt && "before:content-['$_']",
+              "font-mono text-sm font-medium truncate",
+              prompt && "before:mr-2 before:opacity-60",
               colors.text,
             )}
           >
@@ -94,26 +110,23 @@ export const Snippet = ({
         ))}
       </div>
 
-      <div className="ml-auto cursor-pointer" onClick={handleCopy}>
-        {copied ? (
-          <span className={clsx("text-xs font-medium", colors.text)}>
-            Copied!
-          </span>
-        ) : (
-          <svg
-            height="16"
-            width="16"
-            viewBox="0 0 16 16"
-            className={clsx(colors.fill)}
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M2.75 0.5C1.7835 0.5 1 1.2835 1 2.25V9.75C1 10.7165 1.7835 11.5 2.75 11.5H3.75H4.5V10H3.75H2.75C2.61193 10 2.5 9.88807 2.5 9.75V2.25C2.5 2.11193 2.61193 2 2.75 2H8.25C8.38807 2 8.5 2.11193 8.5 2.25V3H10V2.25C10 1.2835 9.2165 0.5 8.25 0.5H2.75ZM7.75 4.5C6.7835 4.5 6 5.2835 6 6.25V13.75C6 14.7165 6.7835 15.5 7.75 15.5H13.25C14.2165 15.5 15 14.7165 15 13.75V6.25C15 5.2835 14.2165 4.5 13.25 4.5H7.75ZM7.5 6.25C7.5 6.11193 7.61193 6 7.75 6H13.25C13.3881 6 13.5 6.11193 13.5 6.25V13.75C13.5 13.8881 13.3881 14 13.25 14H7.75C7.61193 14 7.5 13.8881 7.5 13.75V6.25Z"
-            />
-          </svg>
+      <button
+        onClick={handleCopy}
+        className={clsx(
+          "ml-4 flex-shrink-0 p-2 rounded-md transition-all duration-200",
+          "hover:scale-110 active:scale-95",
+          colors.button,
+          copied && "scale-110",
+          copied && colors.success,
         )}
-      </div>
+        title={copied ? "Copied!" : "Copy to clipboard"}
+      >
+        {copied ? (
+          <CheckCheck className="h-4 w-4" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
+      </button>
     </div>
   );
 };

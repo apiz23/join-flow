@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -13,11 +13,21 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, CalendarIcon, Clock, ArrowUpRight } from "lucide-react";
+import {
+  Trash2,
+  CalendarIcon,
+  Clock,
+  ArrowUpRight,
+  Users,
+  User,
+  Phone,
+  IdCard,
+  Mail,
+} from "lucide-react";
 import { toast } from "sonner";
 import useMobile from "@/lib/useMobile";
 import { Snippet } from "@/components/snippet";
-import { cn } from "@/lib/utils";
+
 interface ExistingEventsTabProps {
   events: any[];
   onEventUpdate?: () => void;
@@ -28,7 +38,27 @@ export default function ExistingEventsTab({
   onEventUpdate,
 }: ExistingEventsTabProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const isMobile = useMobile();
+  const [ajkLists, setAjkLists] = useState<Record<string, any[]>>({});
+
+  const fetchAjkList = async (eventToken: string, eventId: string) => {
+    try {
+      const res = await fetch(`/api/ajk?token=${eventToken}`);
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to fetch AJK list");
+        return;
+      }
+      setAjkLists((prev) => ({ ...prev, [eventId]: data.data }));
+    } catch {
+      toast.error("Error fetching AJK list");
+    }
+  };
+
+  useEffect(() => {
+    events.forEach((event) => {
+      if (event.token) fetchAjkList(event.token, event.id);
+    });
+  }, [events]);
 
   const handleDelete = async (id: string) => {
     if (!id) return toast.error("Invalid event ID");
@@ -38,7 +68,6 @@ export default function ExistingEventsTab({
     try {
       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
       const data = await res.json();
-
       if (res.ok) toast.success("Event deleted successfully!");
       else toast.error(data.error || "Failed to delete event");
       onEventUpdate?.();
@@ -60,29 +89,20 @@ export default function ExistingEventsTab({
     return { status: "Completed", color: "bg-gray-500" };
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+  const getTotalRegistrations = (ajkList: any[]) => {
+    return ajkList.reduce((total, ajk) => total + ajk.registrations.length, 0);
   };
 
   return (
     <div className="space-y-6">
       <Card className="border-border/50 shadow-lg bg-card/50 backdrop-blur-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Your Events
-            </CardTitle>
-            <Badge
-              variant="secondary"
-              className="text-sm font-medium px-3 py-1"
-            >
-              {events.length} event{events.length !== 1 ? "s" : ""}
-            </Badge>
-          </div>
+        <CardHeader className="pb-4 flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold bg-Linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Your Events
+          </CardTitle>
+          <Badge variant="secondary" className="text-sm font-medium px-3 py-1">
+            {events.length} event{events.length !== 1 ? "s" : ""}
+          </Badge>
         </CardHeader>
 
         <CardContent>
@@ -102,19 +122,16 @@ export default function ExistingEventsTab({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event) => {
                 const status = getEventStatus(event.start_date, event.end_date);
+                const ajkList = ajkLists[event.id] || [];
+                const totalRegistrations = getTotalRegistrations(ajkList);
 
                 return (
-                  <Drawer
-                    key={event.id}
-                    direction={isMobile ? "bottom" : "right"}
-                  >
+                  <Drawer key={event.id}>
                     <DrawerTrigger asChild>
-                      <Card className="border-border/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden bg-gradient-to-br from-card to-card/80">
+                      <Card className="border-border/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden bg-Linear-to-br from-card to-card/80">
                         <div
                           className={`absolute top-4 right-4 w-3 h-3 rounded-full ${status.color} ring-2 ring-background`}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                         <CardContent className="p-6 relative">
                           <div className="space-y-4">
                             <div className="flex items-start justify-between gap-3">
@@ -122,12 +139,23 @@ export default function ExistingEventsTab({
                                 <h3 className="font-bold text-foreground text-lg leading-tight line-clamp-2 mb-2">
                                   {event.name}
                                 </h3>
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs font-medium"
-                                >
-                                  {status.status}
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs font-medium"
+                                  >
+                                    {status.status}
+                                  </Badge>
+                                  {totalRegistrations > 0 && (
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      <Users className="h-3 w-3 mr-1" />
+                                      {totalRegistrations}
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                               <Button
                                 variant="ghost"
@@ -153,32 +181,6 @@ export default function ExistingEventsTab({
                               </p>
                             )}
 
-                            <div className="space-y-3 pt-3 border-t border-border/30">
-                              <div className="flex items-center gap-3 text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <CalendarIcon className="h-4 w-4" />
-                                  <span className="font-medium text-foreground">
-                                    Starts:
-                                  </span>
-                                </div>
-                                <span className="text-foreground">
-                                  {formatDate(event.start_date)}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-3 text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <Clock className="h-4 w-4" />
-                                  <span className="font-medium text-foreground">
-                                    Ends:
-                                  </span>
-                                </div>
-                                <span className="text-foreground">
-                                  {formatDate(event.end_date)}
-                                </span>
-                              </div>
-                            </div>
-
                             <div className="flex items-center gap-2 text-xs text-primary font-medium pt-2">
                               <span>View details</span>
                               <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -188,85 +190,260 @@ export default function ExistingEventsTab({
                       </Card>
                     </DrawerTrigger>
 
-                    <DrawerContent
-                      className={cn(isMobile ? "h-[80vh]" : "max-w-[40vw]")}
-                    >
+                    <DrawerContent className="w-full xl:w-[50vw] min-h-[60vh] sm:max-w-none mx-auto">
                       <DrawerHeader className="border-b border-border/50 pb-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
-                            <DrawerTitle className="text-xl font-bold leading-tight mb-2">
+                            <DrawerTitle className="text-2xl font-bold leading-tight mb-2">
                               {event.name}
                             </DrawerTitle>
                             {event.description && (
-                              <p className="text-muted-foreground leading-relaxed">
+                              <p className="text-muted-foreground leading-relaxed text-base">
                                 {event.description}
                               </p>
                             )}
                           </div>
-                          <Badge variant="outline" className="flex-shrink-0">
-                            {status.status}
-                          </Badge>
+                          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                            <Badge variant="outline" className="text-sm">
+                              {status.status}
+                            </Badge>
+                            {totalRegistrations > 0 && (
+                              <Badge variant="secondary" className="text-sm">
+                                <Users className="h-3 w-3 mr-1" />
+                                {totalRegistrations} registrations
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </DrawerHeader>
 
-                      <div className="p-6 space-y-6">
-                        <div className="space-y-4">
-                          <h4 className="font-semibold text-foreground flex items-center gap-2">
-                            <CalendarIcon className="h-4 w-4 text-primary" />
-                            Event Schedule
-                          </h4>
-                          <div className="grid grid-cols-1 gap-3 pl-6">
-                            <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border/30">
-                              <span className="text-sm font-medium text-foreground">
-                                Start Date
-                              </span>
-                              <span className="text-sm text-foreground font-mono">
-                                {new Date(
-                                  event.start_date,
-                                ).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border/30">
-                              <span className="text-sm font-medium text-foreground">
-                                End Date
-                              </span>
-                              <span className="text-sm text-foreground font-mono">
-                                {new Date(event.end_date).toLocaleDateString()}
-                              </span>
+                      <div className="flex-1 overflow-y-auto">
+                        <div className="p-6 space-y-8">
+                          {/* Event Schedule */}
+                          <div className="space-y-4">
+                            <h4 className="font-semibold text-foreground flex items-center gap-2 text-lg">
+                              <CalendarIcon className="h-5 w-5 text-primary" />
+                              Event Schedule
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                              <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg border border-border/30">
+                                <div className="space-y-1">
+                                  <span className="text-sm font-medium text-foreground">
+                                    Start Date
+                                  </span>
+                                  <span className="text-sm text-muted-foreground block">
+                                    {new Date(
+                                      event.start_date,
+                                    ).toLocaleDateString("en-US", {
+                                      weekday: "long",
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg border border-border/30">
+                                <div className="space-y-1">
+                                  <span className="text-sm font-medium text-foreground">
+                                    End Date
+                                  </span>
+                                  <span className="text-sm text-muted-foreground block">
+                                    {new Date(
+                                      event.end_date,
+                                    ).toLocaleDateString("en-US", {
+                                      weekday: "long",
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-foreground flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-primary" />
-                            Event Information
-                          </h4>
-                          <div className="pl-6 space-y-2">
-                            <div className="flex justify-between items-center text-sm">
-                              <span className="text-muted-foreground">
-                                Created
-                              </span>
-                              <span className="font-medium text-foreground">
-                                {new Date(
-                                  event.created_at,
-                                ).toLocaleDateString()}
-                              </span>
-                            </div>
-                            {event.ajk_token && (
-                              <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground">
-                                  AJK Token
+                          {/* Event Information */}
+                          <div className="space-y-4">
+                            <h4 className="font-semibold text-foreground flex items-center gap-2 text-lg">
+                              <Clock className="h-5 w-5 text-primary" />
+                              Event Information
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                              <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg border border-border/30">
+                                <span className="text-sm font-medium text-foreground">
+                                  Created Date
                                 </span>
-                                <span className="font-mono text-foreground bg-muted px-2 py-1 rounded text-xs">
-                                  <Snippet
-                                    text={event.ajk_token}
-                                    onCopy={() => alert("You copied the text!")}
-                                  />
+                                <span className="text-sm text-foreground">
+                                  {new Date(
+                                    event.created_at,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
-                            )}
+
+                              {event.token && (
+                                <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg border border-border/30">
+                                  <span className="text-sm font-medium text-foreground">
+                                    Event Token
+                                  </span>
+                                  <div className="flex justify-end">
+                                    <Snippet
+                                      text={event.token}
+                                      type="success"
+                                      onCopy={() =>
+                                        toast.success("Copied successfully!")
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
+
+                          {/* AJK Committees & Registrations */}
+                          {ajkList.length > 0 && (
+                            <div className="space-y-4">
+                              <h4 className="font-semibold text-foreground flex items-center gap-2 text-lg">
+                                <Users className="h-5 w-5 text-primary" />
+                                Committees & Registrations
+                              </h4>
+                              <div className="space-y-4 pl-6">
+                                {ajkList.map((ajk: any) => (
+                                  <Card
+                                    key={ajk.id}
+                                    className="border-border/30"
+                                  >
+                                    <CardContent className="p-4">
+                                      <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                          <h5 className="font-semibold text-foreground">
+                                            {ajk.name}
+                                          </h5>
+                                          <p className="text-sm text-muted-foreground">
+                                            {ajk.registrations.length} of{" "}
+                                            {ajk.max_members} members registered
+                                            {ajk.available_members > 0 && (
+                                              <span className="text-green-500 ml-2">
+                                                ({ajk.available_members}{" "}
+                                                available)
+                                              </span>
+                                            )}
+                                          </p>
+                                        </div>
+                                        <Badge
+                                          variant={
+                                            ajk.available_members === 0
+                                              ? "destructive"
+                                              : "outline"
+                                          }
+                                          className="text-xs"
+                                        >
+                                          {ajk.available_members === 0
+                                            ? "Full"
+                                            : "Open"}
+                                        </Badge>
+                                      </div>
+
+                                      {ajk.registrations.length > 0 ? (
+                                        <div className="space-y-3">
+                                          {ajk.registrations.map(
+                                            (registration: any) => (
+                                              <div
+                                                key={registration.id}
+                                                className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl border border-border/30 hover:border-border/50 transition-all duration-200 group"
+                                              >
+                                                {/* Avatar/Icon Section */}
+                                                <div className="flex-shrink-0">
+                                                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <User className="h-5 w-5 text-primary" />
+                                                  </div>
+                                                </div>
+
+                                                {/* Registration Details */}
+                                                <div className="flex-1 min-w-0 space-y-3">
+                                                  {/* Name and Basic Info */}
+                                                  <div className="space-y-2">
+                                                    <div className="flex items-center gap-3">
+                                                      <h4 className="font-semibold text-foreground text-base leading-tight">
+                                                        {registration.name}
+                                                      </h4>
+                                                      <Badge
+                                                        variant="outline"
+                                                        className="text-xs font-normal"
+                                                      >
+                                                        {registration.matric_no}
+                                                      </Badge>
+                                                    </div>
+
+                                                    {/* Contact Information */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                      {/* Phone */}
+                                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                          <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                                          <span className="truncate">
+                                                            {registration.phone}
+                                                          </span>
+                                                        </div>
+                                                      </div>
+
+                                                      {/* Email */}
+                                                      {registration.email && (
+                                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                          <div className="flex items-center gap-2 min-w-0">
+                                                            <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                                            <span className="truncate">
+                                                              {
+                                                                registration.email
+                                                              }
+                                                            </span>
+                                                          </div>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                {/* Status/Additional Actions */}
+                                                <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                                                  <Badge
+                                                    variant="secondary"
+                                                    className="text-xs"
+                                                  >
+                                                    Registered
+                                                  </Badge>
+                                                  {registration.created_at && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                      {new Date(
+                                                        registration.created_at,
+                                                      ).toLocaleDateString()}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div className="text-center py-8 px-4">
+                                          <div className="bg-muted/20 rounded-2xl p-6 border border-dashed border-border/50">
+                                            <Users className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+                                            <h4 className="font-medium text-foreground mb-1">
+                                              No Registrations Yet
+                                            </h4>
+                                            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                                              Participants will appear here once
+                                              they register for this committee
+                                            </p>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 

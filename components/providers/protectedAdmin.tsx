@@ -53,8 +53,10 @@ export default function ProtectedProvider({
         <div className="flex flex-col gap-4 p-6 md:p-10">
           <div className="flex justify-center gap-2 md:justify-start">
             <Link href="/" className="flex items-center gap-2 font-medium">
-              <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-4" />
+              <div className="flex items-center justify-center w-10 h-10 bg-linear-to-br from-primary to-primary/80 rounded-xl shadow-lg">
+                <span className="text-primary-foreground font-bold text-sm">
+                  JF
+                </span>
               </div>
               JoinFlow
             </Link>
@@ -66,7 +68,7 @@ export default function ProtectedProvider({
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="grid grid-cols-2 w-full mb-8">
+                <TabsList className="grid grid-cols-2 w-full mb-8 min-h-[4vh] p-2">
                   <TabsTrigger
                     value="login"
                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -100,7 +102,7 @@ export default function ProtectedProvider({
             alt="JoinFlow Dashboard"
             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-10">
+          <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent flex items-end p-10">
             <div className="text-white">
               <h2 className="text-2xl font-bold mb-2">JoinFlow</h2>
               <p className="text-white/80">

@@ -19,7 +19,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, CalendarIcon, CalendarDays, Trash2 } from "lucide-react";
+import { Plus, CalendarIcon, CalendarDays, Trash2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface AddEventTabProps {
@@ -29,7 +29,11 @@ interface AddEventTabProps {
 
 export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "" });
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    group_link: "",
+  });
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [ajkList, setAjkList] = useState([{ name: "", max_members: "" }]);
@@ -70,7 +74,7 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
         created_by: userId,
-        ajk_list: ajkList, // 👈 send AJK list together
+        ajk_list: ajkList,
       }),
     });
 
@@ -78,7 +82,7 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
     if (result.error) toast.error(result.error);
     else {
       toast.success("Event and AJK roles added successfully!");
-      setForm({ name: "", description: "" });
+      setForm({ name: "", description: "", group_link: "" });
       setStartDate(new Date());
       setEndDate(new Date());
       setAjkList([{ name: "", max_members: "" }]);
@@ -103,7 +107,7 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
       <CardContent>
         <form onSubmit={handleSubmit}>
           <FieldSet>
-            <FieldGroup className="space-y-6">
+            <FieldGroup className="space-y-3">
               <Field>
                 <FieldLabel>Event Name</FieldLabel>
                 <Input
@@ -123,6 +127,24 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
                     setForm({ ...form, description: e.target.value })
                   }
                 />
+              </Field>
+
+              {/* 🌐 Group Link */}
+              <Field>
+                <FieldLabel className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4 text-primary" /> Group Link
+                </FieldLabel>
+                <Input
+                  type="url"
+                  placeholder="https://example.com/group-link"
+                  value={form.group_link}
+                  onChange={(e) =>
+                    setForm({ ...form, group_link: e.target.value })
+                  }
+                />
+                <FieldDescription>
+                  Optional: Add a group or registration link for participants
+                </FieldDescription>
               </Field>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -162,7 +184,7 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
                   {ajkList.map((ajk, index) => (
                     <div
                       key={index}
-                      className="grid grid-cols-2 border-b last:border-none items-center"
+                      className="grid grid-cols-2 gap-4 border-b last:border-none items-center"
                     >
                       <Input
                         value={ajk.name}

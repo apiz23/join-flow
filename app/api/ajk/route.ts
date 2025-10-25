@@ -1,5 +1,5 @@
-import supabase from "@/lib/supabase";
 import { NextResponse } from "next/server";
+import supabase from "@/lib/supabase";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -11,15 +11,12 @@ export async function GET(req: Request) {
 
   const { data: event, error: eventError } = await supabase
     .from("jf_events")
-    .select("id")
-    .eq("ajk_token", token)
+    .select("*")
+    .eq("token", token)
     .single();
 
   if (eventError || !event) {
-    return NextResponse.json(
-      { error: "Event tidak dijumpai" },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
   const { data: ajkList, error: ajkError } = await supabase
@@ -33,24 +30,30 @@ export async function GET(req: Request) {
 
   const { data: registrations, error: regError } = await supabase
     .from("jf_registrations")
-    .select("jf_ajk_id")
+    .select("*")
     .eq("jf_event_id", event.id);
 
   if (regError) {
     return NextResponse.json({ error: regError.message }, { status: 500 });
   }
 
-  const ajkCounts: Record<string, number> = {};
-  registrations?.forEach((r) => {
-    if (r.jf_ajk_id) {
-      ajkCounts[r.jf_ajk_id] = (ajkCounts[r.jf_ajk_id] || 0) + 1;
-    }
+  const ajkWithDetails = ajkList.map((ajk) => {
+    const ajkRegistrations = registrations.filter(
+      (r) => r.jf_ajk_id === ajk.id,
+    );
+
+    return {
+      ...ajk,
+      available_members: ajk.max_members - ajkRegistrations.length,
+      registrations: ajkRegistrations,
+    };
   });
 
-  const ajkWithAvailable = ajkList.map((ajk) => ({
-    ...ajk,
-    available_members: ajk.max_members - (ajkCounts[ajk.id] || 0),
-  }));
-
-  return NextResponse.json({ data: ajkWithAvailable });
+  return NextResponse.json({
+    data: ajkWithDetails,
+    event: {
+      name: event.name,
+      group_link: event.group_link,
+    },
+  });
 }

@@ -86,7 +86,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       {/* Header */}
       <div className="border-b border-border/50 bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-6">
