@@ -12,21 +12,22 @@ import {
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer";
-import { Badge } from "@/components/ui/badge";
 import {
-  Trash2,
-  CalendarIcon,
-  Clock,
-  ArrowUpRight,
-  Users,
-  User,
-  Phone,
-  IdCard,
-  Mail,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, CalendarIcon, Clock, ArrowUpRight, Users } from "lucide-react";
 import { toast } from "sonner";
-import useMobile from "@/lib/useMobile";
 import { Snippet } from "@/components/snippet";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
+import useMobile from "@/lib/useMobile";
 
 interface ExistingEventsTabProps {
   events: any[];
@@ -39,6 +40,7 @@ export default function ExistingEventsTab({
 }: ExistingEventsTabProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [ajkLists, setAjkLists] = useState<Record<string, any[]>>({});
+  const isMobile = useMobile();
 
   const fetchAjkList = async (eventToken: string, eventId: string) => {
     try {
@@ -93,6 +95,98 @@ export default function ExistingEventsTab({
     return ajkList.reduce((total, ajk) => total + ajk.registrations.length, 0);
   };
 
+  const handleExportCSV = (event: any, ajkList: any[]) => {
+    if (!ajkList || ajkList.length === 0) {
+      toast.error("No data to export for this event");
+      return;
+    }
+
+    try {
+      const rows: any[] = [];
+
+      ajkList.forEach((ajk: any) => {
+        if (ajk.registrations.length > 0) {
+          ajk.registrations.forEach((reg: any) => {
+            let registeredAt = "-";
+
+            // ✅ Safely format created_at for MY timezone
+            if (reg.created_at) {
+              try {
+                const dateValue =
+                  typeof reg.created_at === "string"
+                    ? reg.created_at
+                    : reg.created_at?.toString();
+
+                const date = new Date(dateValue);
+
+                if (!isNaN(date.getTime())) {
+                  registeredAt = date.toLocaleString("en-MY", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true,
+                    timeZone: "Asia/Kuala_Lumpur", // ✅ ensure MY time
+                  });
+                } else {
+                  console.warn("Invalid created_at:", reg.created_at);
+                }
+              } catch (err) {
+                console.error("Error formatting created_at:", err);
+              }
+            }
+
+            rows.push({
+              "Event Name": event.name || "-",
+              "AJK Name": ajk.name || "-",
+              "Member Name": reg.name || "-",
+              "Matric No": reg.matric_no || "-",
+              Phone: reg.phone || "-",
+              Email: reg.email || "-",
+              "Registered At": registeredAt,
+            });
+          });
+        } else {
+          // Empty AJK (no members)
+          rows.push({
+            "Event Name": event.name || "-",
+            "AJK Name": ajk.name || "-",
+            "Member Name": "-",
+            "Matric No": "-",
+            Phone: "-",
+            Email: "-",
+            "Registered At": "-",
+          });
+        }
+      });
+
+      // ✅ Generate CSV with quotes, header & correct newline
+      const csv = Papa.unparse(rows, {
+        quotes: true,
+        header: true,
+        newline: "\r\n",
+      });
+
+      // ✅ Add BOM for Excel UTF-8 compatibility
+      const BOM = "\uFEFF";
+      const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
+
+      // ✅ Filename with timestamp
+      const timestamp = new Date().toISOString().split("T")[0];
+      const filename = `${event.name
+        .replace(/[^a-z0-9]/gi, "_")
+        .toLowerCase()}_registrations_${timestamp}.csv`;
+
+      saveAs(blob, filename);
+      toast.success(`CSV exported successfully! (${rows.length} rows)`);
+    } catch (error) {
+      console.error("CSV Export Error:", error);
+      toast.error("Failed to export CSV");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-border/50 shadow-lg bg-card/50 backdrop-blur-sm">
@@ -126,7 +220,10 @@ export default function ExistingEventsTab({
                 const totalRegistrations = getTotalRegistrations(ajkList);
 
                 return (
-                  <Drawer key={event.id}>
+                  <Drawer
+                    key={event.id}
+                    direction={isMobile ? "bottom" : "right"}
+                  >
                     <DrawerTrigger asChild>
                       <Card className="border-border/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden bg-Linear-to-br from-card to-card/80">
                         <div
@@ -190,19 +287,17 @@ export default function ExistingEventsTab({
                       </Card>
                     </DrawerTrigger>
 
-                    <DrawerContent className="w-full xl:w-[50vw] min-h-[60vh] sm:max-w-none mx-auto">
+                    <DrawerContent className="w-full md:min-w-fit min-h-[60vh] sm:max-w-none mx-auto">
                       <DrawerHeader className="border-b border-border/50 pb-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <DrawerTitle className="text-2xl font-bold leading-tight mb-2">
-                              {event.name}
-                            </DrawerTitle>
-                            {event.description && (
-                              <p className="text-muted-foreground leading-relaxed text-base">
-                                {event.description}
-                              </p>
-                            )}
-                          </div>
+                        <div className="flex items-start justify-between gap-4 px-5">
+                          <DrawerTitle className="text-2xl font-bold leading-tight mb-2">
+                            {event.name}
+                          </DrawerTitle>
+                          {event.description && (
+                            <p className="text-muted-foreground leading-relaxed text-base">
+                              {event.description}
+                            </p>
+                          )}
                           <div className="flex flex-col items-end gap-2 flex-shrink-0">
                             <Badge variant="outline" className="text-sm">
                               {status.status}
@@ -345,84 +440,75 @@ export default function ExistingEventsTab({
                                       </div>
 
                                       {ajk.registrations.length > 0 ? (
-                                        <div className="space-y-3">
-                                          {ajk.registrations.map(
-                                            (registration: any) => (
-                                              <div
-                                                key={registration.id}
-                                                className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl border border-border/30 hover:border-border/50 transition-all duration-200 group"
-                                              >
-                                                {/* Avatar/Icon Section */}
-                                                <div className="flex-shrink-0">
-                                                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                                    <User className="h-5 w-5 text-primary" />
-                                                  </div>
-                                                </div>
-
-                                                {/* Registration Details */}
-                                                <div className="flex-1 min-w-0 space-y-3">
-                                                  {/* Name and Basic Info */}
-                                                  <div className="space-y-2">
-                                                    <div className="flex items-center gap-3">
-                                                      <h4 className="font-semibold text-foreground text-base leading-tight">
-                                                        {registration.name}
-                                                      </h4>
-                                                      <Badge
-                                                        variant="outline"
-                                                        className="text-xs font-normal"
-                                                      >
-                                                        {registration.matric_no}
-                                                      </Badge>
-                                                    </div>
-
-                                                    {/* Contact Information */}
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                      {/* Phone */}
-                                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-2 min-w-0">
-                                                          <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                                                          <span className="truncate">
-                                                            {registration.phone}
-                                                          </span>
-                                                        </div>
-                                                      </div>
-
-                                                      {/* Email */}
-                                                      {registration.email && (
-                                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                          <div className="flex items-center gap-2 min-w-0">
-                                                            <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                                                            <span className="truncate">
-                                                              {
-                                                                registration.email
-                                                              }
-                                                            </span>
-                                                          </div>
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  </div>
-                                                </div>
-
-                                                {/* Status/Additional Actions */}
-                                                <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                                                  <Badge
-                                                    variant="secondary"
-                                                    className="text-xs"
+                                        <div className="overflow-x-auto">
+                                          <Table>
+                                            <TableCaption>
+                                              A list of members registered under{" "}
+                                              {ajk.name}.
+                                            </TableCaption>
+                                            <TableHeader>
+                                              <TableRow>
+                                                <TableHead className="w-[50px]">
+                                                  No
+                                                </TableHead>
+                                                <TableHead>Name</TableHead>
+                                                <TableHead>Matric No</TableHead>
+                                                <TableHead>Phone</TableHead>
+                                                <TableHead>Email</TableHead>
+                                                <TableHead className="text-right">
+                                                  Registered At
+                                                </TableHead>
+                                              </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                              {ajk.registrations.map(
+                                                (
+                                                  registration: any,
+                                                  index: number,
+                                                ) => (
+                                                  <TableRow
+                                                    key={registration.id}
                                                   >
-                                                    Registered
-                                                  </Badge>
-                                                  {registration.created_at && (
-                                                    <span className="text-xs text-muted-foreground">
-                                                      {new Date(
-                                                        registration.created_at,
-                                                      ).toLocaleDateString()}
-                                                    </span>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            ),
-                                          )}
+                                                    <TableCell className="font-medium">
+                                                      {index + 1}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      {registration.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      {registration.matric_no}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      {registration.phone}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      {registration.email ||
+                                                        "-"}
+                                                    </TableCell>
+                                                    <TableCell className="text-right text-muted-foreground">
+                                                      {registration.created_at
+                                                        ? new Date(
+                                                            registration.created_at,
+                                                          ).toLocaleString(
+                                                            "en-MY",
+                                                            {
+                                                              year: "numeric",
+                                                              month: "2-digit",
+                                                              day: "2-digit",
+                                                              hour: "2-digit",
+                                                              minute: "2-digit",
+                                                              hour12: true,
+                                                              timeZone:
+                                                                "Asia/Kuala_Lumpur",
+                                                            },
+                                                          )
+                                                        : "-"}
+                                                    </TableCell>
+                                                  </TableRow>
+                                                ),
+                                              )}
+                                            </TableBody>
+                                          </Table>
                                         </div>
                                       ) : (
                                         <div className="text-center py-8 px-4">
@@ -448,7 +534,7 @@ export default function ExistingEventsTab({
                       </div>
 
                       <DrawerFooter className="border-t border-border/50 pt-4">
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
                           <Button
                             variant="destructive"
                             onClick={() => handleDelete(event.id)}
@@ -467,11 +553,14 @@ export default function ExistingEventsTab({
                               </>
                             )}
                           </Button>
-                          <DrawerClose asChild>
-                            <Button variant="outline" className="flex-1">
-                              Close
-                            </Button>
-                          </DrawerClose>
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleExportCSV(event, ajkList)}
+                            className="flex-1 gap-2"
+                          >
+                            <ArrowUpRight className="h-4 w-4" />
+                            Export as CSV
+                          </Button>
                         </div>
                       </DrawerFooter>
                     </DrawerContent>

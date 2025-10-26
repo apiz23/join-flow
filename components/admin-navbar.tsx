@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu, LayoutDashboard, Calendar } from "lucide-react";
+import { LogOut, LayoutDashboard, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AdminNavbar() {
@@ -20,9 +20,9 @@ export default function AdminNavbar() {
       icon: LayoutDashboard,
     },
     {
-      href: "/admin/events",
-      label: "Events",
-      icon: Calendar,
+      href: "/admin/profile",
+      label: "Profile",
+      icon: User,
     },
   ];
 
