@@ -377,7 +377,7 @@ export default function ExistingEventsTab({
                               </div>
 
                               {event.token && (
-                                <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg border border-border/30">
+                                <div className="flex justify-between items-center gap-6 p-4 bg-muted/30 rounded-lg border border-border/30">
                                   <span className="text-sm font-medium text-foreground">
                                     Event Token
                                   </span>

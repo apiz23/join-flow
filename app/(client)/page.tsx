@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-primary/5 to-accent/5 overflow-x-hidden flex items-center justify-center">
       {/* Hero Section */}
-      <div className="text-center space-y-8 px-4">
+      <div className="text-center space-y-8 px-4 md:pt-0 pt-32">
         <div className="space-y-6 max-w-4xl mx-auto">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-primary/10 dark:text-white text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
@@ -26,7 +26,7 @@ export default function HomePage() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto px-4">
           <Link
             href="/register"
             className="group relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-primary/50 dark:hover:border-primary/30"
@@ -46,33 +46,6 @@ export default function HomePage() {
               <div className="pt-2">
                 <span className="text-primary font-semibold text-sm group-hover:underline inline-flex items-center gap-1">
                   Get Started
-                  <span className="group-hover:translate-x-1 transition-transform">
-                    →
-                  </span>
-                </span>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/status"
-            className="group relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-accent/50 dark:hover:border-accent/30"
-          >
-            <div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="relative space-y-4">
-              <div className="bg-accent text-accent-foreground rounded-2xl w-16 h-16 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <span className="text-2xl">🔍</span>
-              </div>
-              <h3 className="font-bold text-xl text-foreground">
-                Check Status
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                View your registration status and committee assignment in
-                real-time
-              </p>
-              <div className="pt-2">
-                <span className="text-accent font-semibold text-sm group-hover:underline inline-flex items-center gap-1">
-                  Check Now
                   <span className="group-hover:translate-x-1 transition-transform">
                     →
                   </span>

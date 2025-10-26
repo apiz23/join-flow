@@ -31,8 +31,8 @@ export default function Page() {
   }, [userId]);
 
   return (
-    <div className="min-h-screen bg-background py-32">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen bg-background md:pt-28 pt-48 pb-20">
+      <div className="md:max-w-[50vw] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-3">
             Event Management

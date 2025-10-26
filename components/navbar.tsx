@@ -130,11 +130,10 @@ export default function Navbar() {
                   JF
                 </span>
               </div>
-              <div className="flex flex-col">
+              <div className="flex">
                 <DrawerTitle className="text-lg font-bold text-sidebar-foreground">
                   JoinFlow
                 </DrawerTitle>
-                <p className="text-xs text-muted-foreground">Navigation Menu</p>
               </div>
             </div>
             <Button

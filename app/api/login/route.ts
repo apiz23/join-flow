@@ -28,10 +28,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    // ✅ Successful login — send user ID as session_token
     return NextResponse.json({
       message: "Login successful",
-      session_token: user.id, // store user id as "token"
+      session_token: user.id,
       user: { id: user.id, email: user.email, role: user.role },
     });
   } catch (err) {

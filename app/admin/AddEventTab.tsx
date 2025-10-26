@@ -19,7 +19,19 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, CalendarIcon, CalendarDays, Trash2, Link2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Plus,
+  CalendarIcon,
+  CalendarDays,
+  Trash2,
+  Link2,
+  ChevronDownIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface AddEventTabProps {
@@ -147,29 +159,66 @@ export default function AddEventTab({ userId, onCreated }: AddEventTabProps) {
                 </FieldDescription>
               </Field>
 
+              {/* 📅 Popover Calendars */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Start Date */}
                 <Field>
                   <FieldLabel className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4 text-primary" />
                     Start Date
                   </FieldLabel>
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between font-normal"
+                      >
+                        {startDate
+                          ? startDate.toLocaleDateString()
+                          : "Select date"}
+                        <ChevronDownIcon className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        captionLayout="dropdown"
+                        onSelect={(date) => {
+                          setStartDate(date);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </Field>
 
+                {/* End Date */}
                 <Field>
                   <FieldLabel className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-primary" />
                     End Date
                   </FieldLabel>
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between font-normal"
+                      >
+                        {endDate ? endDate.toLocaleDateString() : "Select date"}
+                        <ChevronDownIcon className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        captionLayout="dropdown"
+                        onSelect={(date) => {
+                          setEndDate(date);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </Field>
               </div>
 
