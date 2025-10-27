@@ -20,6 +20,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "./mode-toggle";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -102,6 +103,7 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <ModeToggle />
           </div>
 
           {/* Mobile Menu */}
@@ -123,7 +125,7 @@ export default function Navbar() {
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerContent className="h-[85vh] max-h-[85vh] rounded-t-3xl border-t-2 border-border/50">
           {/* Header */}
-          <DrawerHeader className="flex flex-row items-center justify-between px-6 py-5 border-b border-border/50 bg-sidebar">
+          <DrawerHeader className="flex flex-row items-center justify-between px-6 py-5 border-b border-border/50">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-linear-to-br from-primary to-primary/80 rounded-xl shadow-lg">
                 <span className="text-primary-foreground font-bold text-sm">
@@ -136,14 +138,7 @@ export default function Navbar() {
                 </DrawerTitle>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="h-9 w-9 rounded-lg hover:bg-sidebar-accent border border-sidebar-border/50"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <ModeToggle />
           </DrawerHeader>
 
           {/* Navigation Links */}
